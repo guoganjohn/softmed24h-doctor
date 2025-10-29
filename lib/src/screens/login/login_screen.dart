@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:softmed24h_admin/src/screens/dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -17,7 +16,8 @@ class LoginScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                mainAxisSize: MainAxisSize.min, // Make the column take minimum vertical space
+                mainAxisSize: MainAxisSize
+                    .min, // Make the column take minimum vertical space
                 children: <Widget>[
                   TextFormField(
                     decoration: const InputDecoration(
@@ -40,7 +40,8 @@ class LoginScreen extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       context.go('/dashboard');
-                    },                    child: const Text('Entrar'),
+                    },
+                    child: const Text('Entrar'),
                   ),
                 ],
               ),
