@@ -1,17 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:softmed24h_admin/src/screens/meumed_academy/videos_tutoriais_screen.dart';
-import 'package:softmed24h_admin/src/screens/meumed_academy/treinamentos_screen.dart';
-import 'package:softmed24h_admin/src/screens/meumed_academy/material_apoio_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/minhas_informacoes_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/meus_documentos_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/minha_senha_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/meus_comunicados_screen.dart';
-import 'package:softmed24h_admin/src/screens/financeiro/extrato_financeiro_screen.dart'; // Assuming these will be created
-import 'package:softmed24h_admin/src/screens/financeiro/meus_saques_screen.dart'; // Assuming these will be created
-import 'package:softmed24h_admin/src/screens/financeiro/meus_cartoes_screen.dart'; // Assuming these will be created
-import 'package:softmed24h_admin/src/screens/telemedicina/gerenciamento_fila_screen.dart';
 
 class LayoutScreen extends StatefulWidget {
   final Widget body;
@@ -23,7 +11,44 @@ class LayoutScreen extends StatefulWidget {
 }
 
 class _LayoutScreenState extends State<LayoutScreen> {
-  bool _isRouteActive(String routePath) {
+  // State variable to track the currently expanded tile's route path
+  String? _currentExpandedTile;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _currentExpandedTile based on the active route when the widget is first built
+    _currentExpandedTile = _getActiveParentRoute();
+  }
+
+  // Helper to determine the active main parent route for initial expansion
+  String? _getActiveParentRoute() {
+    final currentPath = GoRouter.of(
+      context,
+    ).routerDelegate.currentConfiguration.uri.toString();
+
+    if (currentPath.startsWith('/dashboard/meumed-academy')) {
+      return '/dashboard/meumed-academy';
+    } else if (currentPath.startsWith('/dashboard/minha-conta')) {
+      return '/dashboard/minha-conta';
+    } else if (currentPath.startsWith('/dashboard/financeiro')) {
+      return '/dashboard/financeiro';
+    } else if (currentPath.startsWith('/dashboard/telemedicina')) {
+      return '/dashboard/telemedicina';
+    }
+    return null;
+  }
+
+  // Checks if the current route exactly matches the given path (for sub-menus or the main dashboard link)
+  bool _isExactRouteActive(String routePath) {
+    final currentPath = GoRouter.of(
+      context,
+    ).routerDelegate.currentConfiguration.uri.toString();
+    return currentPath == routePath;
+  }
+
+  // Checks if the current route is the parent path or any of its children (for ExpansionTile styling)
+  bool _isParentRouteActive(String routePath) {
     final currentPath = GoRouter.of(
       context,
     ).routerDelegate.currentConfiguration.uri.toString();
@@ -46,24 +71,21 @@ class _LayoutScreenState extends State<LayoutScreen> {
               color: Colors.grey[200], // Set background color to light grey
               child: Column(
                 children: <Widget>[
+                  // Top spacing (Color Box)
                   const ColoredBox(
                     color: Colors.blue,
                     child: SizedBox(width: double.infinity, height: 16.0),
-                  ), // Top spacing
+                  ),
+
+                  // Header/Profile Section
                   Container(
-                    // This is the header Container
-                    width: double.infinity, // Ensure full width
+                    width: double.infinity,
                     decoration: const BoxDecoration(color: Colors.blue),
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16.0,
-                        right: 8.0,
-                      ), // Add padding
+                      padding: const EdgeInsets.only(left: 16.0, right: 8.0),
                       child: Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center, // Center vertically
-                        crossAxisAlignment: CrossAxisAlignment
-                            .center, // Align content to center horizontally
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           const CircleAvatar(
                             radius: 60,
@@ -84,216 +106,303 @@ class _LayoutScreenState extends State<LayoutScreen> {
                       ),
                     ),
                   ),
+
+                  // Bottom spacing (Color Box)
                   const ColoredBox(
                     color: Colors.blue,
                     child: SizedBox(width: double.infinity, height: 8.0),
-                  ), // Bottom spacing
-                  ListTile(
-                    leading: const Icon(Icons.dashboard),
-                    title: const Text('Painel de Controle'),
-                    selected: _isRouteActive('/dashboard'),
-                    selectedTileColor: Colors.blue.withOpacity(0.2),
-                    selectedColor: Colors.blue,
-                    onTap: () {
-                      context.go('/dashboard');
-                    },
                   ),
-                  ExpansionTile(
-                    leading: const Icon(Icons.school),
-                    title: const Text('MeuMed Academy'),
-                    initiallyExpanded: _isRouteActive(
-                      '/dashboard/meumed-academy',
-                    ), // Expand if any sub-route is active
-                    collapsedIconColor:
-                        Colors.black, // Default icon color when not expanded
-                    iconColor: Colors.blue, // Icon color when expanded
-                    collapsedTextColor:
-                        Colors.black, // Default text color when not expanded
-                    textColor: Colors.blue, // Text color when expanded
-                    children: <Widget>[
-                      ListTile(
-                        title: const Text('Videos Tutoriais'),
-                        selected: _isRouteActive(
-                          '/dashboard/meumed-academy/videos-tutoriais',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go(
-                            '/dashboard/meumed-academy/videos-tutoriais',
-                          );
-                        },
+
+                  // --- Menu Items wrapped in a SingleChildScrollView to prevent overflow ---
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          // Painel de Controle (Dashboard)
+                          ListTile(
+                            leading: const Icon(Icons.dashboard),
+                            title: const Text('Painel de Controle'),
+                            selected: _isExactRouteActive('/dashboard'),
+                            selectedTileColor: Colors.blue.withOpacity(0.2),
+                            selectedColor: Colors.blue,
+                            onTap: () {
+                              context.go('/dashboard');
+                            },
+                          ),
+
+                          // MeuMed Academy
+                          ExpansionTile(
+                            leading: const Icon(Icons.school),
+                            title: const Text('MeuMed Academy'),
+                            // Control expansion based on state
+                            initiallyExpanded:
+                                _currentExpandedTile ==
+                                '/dashboard/meumed-academy',
+                            onExpansionChanged: (bool expanded) {
+                              setState(() {
+                                // Close all others when this one expands
+                                _currentExpandedTile = expanded
+                                    ? '/dashboard/meumed-academy'
+                                    : null;
+                              });
+                            },
+                            collapsedIconColor: Colors.black,
+                            // Highlight icon if parent route is active (blue)
+                            iconColor:
+                                _isParentRouteActive(
+                                  '/dashboard/meumed-academy',
+                                )
+                                ? Colors.blue
+                                : Colors.black,
+                            collapsedTextColor: Colors.black,
+                            // Highlight text if parent route is active (blue)
+                            textColor:
+                                _isParentRouteActive(
+                                  '/dashboard/meumed-academy',
+                                )
+                                ? Colors.blue
+                                : Colors.black,
+                            children: <Widget>[
+                              ListTile(
+                                title: const Text('Videos Tutoriais'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/meumed-academy/videos-tutoriais',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/meumed-academy/videos-tutoriais',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Treinamentos'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/meumed-academy/treinamentos',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/meumed-academy/treinamentos',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Material de Apoio'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/meumed-academy/material-apoio',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/meumed-academy/material-apoio',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+
+                          // Minha Conta
+                          ExpansionTile(
+                            leading: const Icon(Icons.person),
+                            title: const Text('Minha Conta'),
+                            // Control expansion based on state
+                            initiallyExpanded:
+                                _currentExpandedTile ==
+                                '/dashboard/minha-conta',
+                            onExpansionChanged: (bool expanded) {
+                              setState(() {
+                                _currentExpandedTile = expanded
+                                    ? '/dashboard/minha-conta'
+                                    : null;
+                              });
+                            },
+                            collapsedIconColor: Colors.black,
+                            iconColor:
+                                _isParentRouteActive('/dashboard/minha-conta')
+                                ? Colors.blue
+                                : Colors.black,
+                            collapsedTextColor: Colors.black,
+                            textColor:
+                                _isParentRouteActive('/dashboard/minha-conta')
+                                ? Colors.blue
+                                : Colors.black,
+                            children: <Widget>[
+                              ListTile(
+                                title: const Text('Minhas Informações'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/minha-conta/minhas-informacoes',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/minha-conta/minhas-informacoes',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Meus Documentos'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/minha-conta/meus-documentos',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/minha-conta/meus-documentos',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Minha Senha'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/minha-conta/minha-senha',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/minha-conta/minha-senha',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Meus Comunicados'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/minha-conta/meus-comunicados',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/minha-conta/meus-comunicados',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+
+                          // Financeiro
+                          ExpansionTile(
+                            leading: const Icon(Icons.account_balance_wallet),
+                            title: const Text('Financeiro'),
+                            // Control expansion based on state
+                            initiallyExpanded:
+                                _currentExpandedTile == '/dashboard/financeiro',
+                            onExpansionChanged: (bool expanded) {
+                              setState(() {
+                                _currentExpandedTile = expanded
+                                    ? '/dashboard/financeiro'
+                                    : null;
+                              });
+                            },
+                            collapsedIconColor: Colors.black,
+                            iconColor:
+                                _isParentRouteActive('/dashboard/financeiro')
+                                ? Colors.blue
+                                : Colors.black,
+                            collapsedTextColor: Colors.black,
+                            textColor:
+                                _isParentRouteActive('/dashboard/financeiro')
+                                ? Colors.blue
+                                : Colors.black,
+                            children: <Widget>[
+                              ListTile(
+                                title: const Text('Extrato Financeiro'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/financeiro/extrato-financeiro',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/financeiro/extrato-financeiro',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Meus Saques'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/financeiro/meus-saques',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/financeiro/meus-saques',
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: const Text('Meus Cartões'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/financeiro/meus-cartoes',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/financeiro/meus-cartoes',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+
+                          // Telemedicina
+                          ExpansionTile(
+                            leading: const Icon(Icons.medical_services),
+                            title: const Text('Telemedicina'),
+                            // Control expansion based on state
+                            initiallyExpanded:
+                                _currentExpandedTile ==
+                                '/dashboard/telemedicina',
+                            onExpansionChanged: (bool expanded) {
+                              setState(() {
+                                _currentExpandedTile = expanded
+                                    ? '/dashboard/telemedicina'
+                                    : null;
+                              });
+                            },
+                            collapsedIconColor: Colors.black,
+                            iconColor:
+                                _isParentRouteActive('/dashboard/telemedicina')
+                                ? Colors.blue
+                                : Colors.black,
+                            collapsedTextColor: Colors.black,
+                            textColor:
+                                _isParentRouteActive('/dashboard/telemedicina')
+                                ? Colors.blue
+                                : Colors.black,
+                            children: <Widget>[
+                              ListTile(
+                                title: const Text('Gerenciamento de Fila'),
+                                selected: _isExactRouteActive(
+                                  '/dashboard/telemedicina/gerenciamento-fila',
+                                ),
+                                selectedTileColor: Colors.blue.withOpacity(0.2),
+                                selectedColor: Colors.blue,
+                                onTap: () {
+                                  context.go(
+                                    '/dashboard/telemedicina/gerenciamento-fila',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      ListTile(
-                        title: const Text('Treinamentos'),
-                        selected: _isRouteActive(
-                          '/dashboard/meumed-academy/treinamentos',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go('/dashboard/meumed-academy/treinamentos');
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Material de Apoio'),
-                        selected: _isRouteActive(
-                          '/dashboard/meumed-academy/material-apoio',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go(
-                            '/dashboard/meumed-academy/material-apoio',
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  ExpansionTile(
-                    leading: const Icon(Icons.person),
-                    title: const Text('Minha Conta'),
-                    initiallyExpanded: _isRouteActive(
-                      '/dashboard/minha-conta',
-                    ), // Expand if any sub-route is active
-                    collapsedIconColor:
-                        Colors.black, // Default icon color when not expanded
-                    iconColor: Colors.blue, // Icon color when expanded
-                    collapsedTextColor:
-                        Colors.black, // Default text color when not expanded
-                    textColor: Colors.blue, // Text color when expanded
-                    children: <Widget>[
-                      ListTile(
-                        title: const Text('Minhas Informações'),
-                        selected: _isRouteActive(
-                          '/dashboard/minha-conta/minhas-informacoes',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go(
-                            '/dashboard/minha-conta/minhas-informacoes',
-                          );
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Meus Documentos'),
-                        selected: _isRouteActive(
-                          '/dashboard/minha-conta/meus-documentos',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go('/dashboard/minha-conta/meus-documentos');
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Minha Senha'),
-                        selected: _isRouteActive(
-                          '/dashboard/minha-conta/minha-senha',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go('/dashboard/minha-conta/minha-senha');
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Meus Comunicados'),
-                        selected: _isRouteActive(
-                          '/dashboard/minha-conta/meus-comunicados',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go('/dashboard/minha-conta/meus-comunicados');
-                        },
-                      ),
-                    ],
-                  ),
-                  ExpansionTile(
-                    leading: const Icon(Icons.account_balance_wallet),
-                    title: const Text('Financeiro'),
-                    initiallyExpanded: _isRouteActive(
-                      '/dashboard/financeiro',
-                    ), // Expand if any sub-route is active
-                    collapsedIconColor:
-                        Colors.black, // Default icon color when not expanded
-                    iconColor: Colors.blue, // Icon color when expanded
-                    collapsedTextColor:
-                        Colors.black, // Default text color when not expanded
-                    textColor: Colors.blue, // Text color when expanded
-                    children: <Widget>[
-                      ListTile(
-                        title: const Text('Extrato Financeiro'),
-                        selected: _isRouteActive(
-                          '/dashboard/financeiro/extrato-financeiro',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go(
-                            '/dashboard/financeiro/extrato-financeiro',
-                          );
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Meus Saques'),
-                        selected: _isRouteActive(
-                          '/dashboard/financeiro/meus-saques',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go('/dashboard/financeiro/meus-saques');
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('Meus Cartões'),
-                        selected: _isRouteActive(
-                          '/dashboard/financeiro/meus-cartoes',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go('/dashboard/financeiro/meus-cartoes');
-                        },
-                      ),
-                    ],
-                  ),
-                  ExpansionTile(
-                    leading: const Icon(Icons.medical_services),
-                    title: const Text('Telemedicina'),
-                    initiallyExpanded: _isRouteActive(
-                      '/dashboard/telemedicina',
-                    ), // Expand if any sub-route is active
-                    collapsedIconColor:
-                        Colors.black, // Default icon color when not expanded
-                    iconColor: Colors.blue, // Icon color when expanded
-                    collapsedTextColor:
-                        Colors.black, // Default text color when not expanded
-                    textColor: Colors.blue, // Text color when expanded
-                    children: <Widget>[
-                      ListTile(
-                        title: const Text('Gerenciamento de Fila'),
-                        selected: _isRouteActive(
-                          '/dashboard/telemedicina/gerenciamento-fila',
-                        ),
-                        selectedTileColor: Colors.blue.withOpacity(0.2),
-                        selectedColor: Colors.blue,
-                        onTap: () {
-                          context.go(
-                            '/dashboard/telemedicina/gerenciamento-fila',
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const Expanded(child: SizedBox()), // Fill remaining space
+                    ),
+                  ), // End of SingleChildScrollView
                 ],
               ),
             ),
           ),
+
           // Main content
           Expanded(
             child: widget.body, // Use the provided body widget
