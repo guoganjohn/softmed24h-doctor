@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:softmed24h_doctor/src/widgets/breadcrumb.dart';
+import 'package:softmed24h_doctor/src/widgets/header.dart';
 import 'package:go_router/go_router.dart';
 
 class LayoutScreen extends StatefulWidget {
@@ -405,10 +407,39 @@ class _LayoutScreenState extends State<LayoutScreen> {
 
           // Main content
           Expanded(
-            child: widget.body, // Use the provided body widget
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Header(title: _getTitleForRoute()),
+                const Breadcrumb(),
+                Expanded(
+                  child: widget.body, // Use the provided body widget
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  String _getTitleForRoute() {
+    final currentPath = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+    const routeTitles = {
+      '/dashboard': 'Painel de Controle',
+      '/dashboard/meumed-academy/videos-tutoriais': 'Videos Tutoriais',
+      '/dashboard/meumed-academy/treinamentos': 'Treinamentos',
+      '/dashboard/meumed-academy/material-apoio': 'Material de Apoio',
+      '/dashboard/minha-conta/minhas-informacoes': 'Minhas Informações',
+      '/dashboard/minha-conta/meus-documentos': 'Meus Documentos',
+      '/dashboard/minha-conta/minha-senha': 'Minha Senha',
+      '/dashboard/minha-conta/meus-comunicados': 'Meus Comunicados',
+      '/dashboard/financeiro/extrato-financeiro': 'Extrato Financeiro',
+      '/dashboard/financeiro/meus-saques': 'Meus Saques',
+      '/dashboard/financeiro/meus-cartoes': 'Meus Cartões',
+      '/dashboard/telemedicina/gerenciamento-fila': 'Gerenciamento de Fila',
+    };
+
+    return routeTitles[currentPath] ?? 'Painel';
   }
 }
