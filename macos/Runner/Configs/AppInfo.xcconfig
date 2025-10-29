@@ -5,7 +5,7 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = softmed24h_admin
+PRODUCT_NAME = softmed24h_doctor
 
 // The application's bundle identifier
 PRODUCT_BUNDLE_IDENTIFIER = com.softmed24h.admin.softmed24hAdmin

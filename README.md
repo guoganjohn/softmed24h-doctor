@@ -1,4 +1,4 @@
-# softmed24h_admin
+# softmed24h_doctor
 
 A new Flutter project.
 

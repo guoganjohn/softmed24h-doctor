@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:softmed24h_admin/src/services/storage_service.dart';
-import 'package:softmed24h_admin/src/utils/api_service.dart';
-import 'dart:convert';
+import 'package:softmed24h_doctor/src/services/storage_service.dart';
+import 'package:softmed24h_doctor/src/utils/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -42,6 +40,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -50,7 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final String password = _passwordController.text;
 
     try {
-      final AuthResponse authResponse = await _apiService.login(email, password);
+      final AuthResponse authResponse = await _apiService.login(
+        email,
+        password,
+      );
       await _storageService.write('access_token', authResponse.accessToken);
       context.go('/dashboard');
     } on Exception catch (e) {
@@ -62,9 +67,9 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         errorMessage = 'Erro de conexão. Tente novamente mais tarde.';
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
       print('Error during login: $e');
     } finally {
       setState(() {
@@ -80,41 +85,60 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: Card(
-            elevation: 8.0, // Add some shadow to the card
-            margin: const EdgeInsets.all(16.0), // Margin around the card
+            elevation: 8.0,
+            margin: const EdgeInsets.all(16.0),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize
-                    .min, // Make the column take minimum vertical space
-                children: <Widget>[
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Usuário',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Usuário',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira seu e-mail';
+                        }
+                        if (!RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                        ).hasMatch(value)) {
+                          return 'Por favor, insira um e-mail válido';
+                        }
+                        return null;
+                      },
                     ),
-                    keyboardType: TextInputType.text,
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Senha',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock),
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Senha',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira sua senha';
+                        }
+                        return null;
+                      },
                     ),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 24.0),
-                  _isLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: _isLoading ? null : _login,
-                          child: const Text('Entrar'),
-                        ),
-                ],
+                    const SizedBox(height: 24.0),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : ElevatedButton(
+                            onPressed: _isLoading ? null : _login,
+                            child: const Text('Entrar'),
+                          ),
+                  ],
+                ),
               ),
             ),
           ),

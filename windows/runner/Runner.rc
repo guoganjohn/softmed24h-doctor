@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.softmed24h.admin" "\0"
-            VALUE "FileDescription", "softmed24h_admin" "\0"
+            VALUE "FileDescription", "softmed24h_doctor" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "softmed24h_admin" "\0"
+            VALUE "InternalName", "softmed24h_doctor" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.softmed24h.admin. All rights reserved." "\0"
-            VALUE "OriginalFilename", "softmed24h_admin.exe" "\0"
-            VALUE "ProductName", "softmed24h_admin" "\0"
+            VALUE "OriginalFilename", "softmed24h_doctor.exe" "\0"
+            VALUE "ProductName", "softmed24h_doctor" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:softmed24h_admin/src/screens/dashboard/dashboard_screen.dart';
-import 'package:softmed24h_admin/src/screens/financeiro/extrato_financeiro_screen.dart';
-import 'package:softmed24h_admin/src/screens/financeiro/meus_cartoes_screen.dart';
-import 'package:softmed24h_admin/src/screens/financeiro/meus_saques_screen.dart';
-import 'package:softmed24h_admin/src/screens/layout_screen.dart'; // Import LayoutScreen
-import 'package:softmed24h_admin/src/screens/login/login_screen.dart';
-import 'package:softmed24h_admin/src/screens/meumed_academy/material_apoio_screen.dart';
-import 'package:softmed24h_admin/src/screens/meumed_academy/treinamentos_screen.dart';
-import 'package:softmed24h_admin/src/screens/meumed_academy/videos_tutoriais_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/meus_comunicados_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/meus_documentos_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/minha_senha_screen.dart';
-import 'package:softmed24h_admin/src/screens/minha_conta/minhas_informacoes_screen.dart';
-import 'package:softmed24h_admin/src/screens/telemedicina/gerenciamento_fila_screen.dart'; // Import GerenciamentoFilaScreen
+import 'package:softmed24h_doctor/src/screens/dashboard/dashboard_screen.dart';
+import 'package:softmed24h_doctor/src/screens/financeiro/extrato_financeiro_screen.dart';
+import 'package:softmed24h_doctor/src/screens/financeiro/meus_cartoes_screen.dart';
+import 'package:softmed24h_doctor/src/screens/financeiro/meus_saques_screen.dart';
+import 'package:softmed24h_doctor/src/screens/layout_screen.dart'; // Import LayoutScreen
+import 'package:softmed24h_doctor/src/screens/login/login_screen.dart';
+import 'package:softmed24h_doctor/src/screens/meumed_academy/material_apoio_screen.dart';
+import 'package:softmed24h_doctor/src/screens/meumed_academy/treinamentos_screen.dart';
+import 'package:softmed24h_doctor/src/screens/meumed_academy/videos_tutoriais_screen.dart';
+import 'package:softmed24h_doctor/src/screens/minha_conta/meus_comunicados_screen.dart';
+import 'package:softmed24h_doctor/src/screens/minha_conta/meus_documentos_screen.dart';
+import 'package:softmed24h_doctor/src/screens/minha_conta/minha_senha_screen.dart';
+import 'package:softmed24h_doctor/src/screens/minha_conta/minhas_informacoes_screen.dart';
+import 'package:softmed24h_doctor/src/screens/telemedicina/gerenciamento_fila_screen.dart'; // Import GerenciamentoFilaScreen
 import 'package:url_strategy/url_strategy.dart'; // Import url_strategy
 
 Future<void> main() async {

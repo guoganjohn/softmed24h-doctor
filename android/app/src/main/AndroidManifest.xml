@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="softmed24h_admin"
+        android:label="softmed24h_doctor"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

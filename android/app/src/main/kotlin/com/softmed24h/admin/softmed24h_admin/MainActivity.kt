@@ -1,4 +1,4 @@
-package com.softmed24h.admin.softmed24h_admin
+package com.softmed24h.admin.softmed24h_doctor
 
 import io.flutter.embedding.android.FlutterActivity
 
