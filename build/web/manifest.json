@@ -1,6 +1,6 @@
 {
-    "name": "softmed24h_admin",
-    "short_name": "softmed24h_admin",
+    "name": "softmed24h_doctor",
+    "short_name": "softmed24h_doctor",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
