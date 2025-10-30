@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
@@ -18,8 +19,10 @@ import 'package:softmed24h_doctor/src/screens/telemedicina/gerenciamento_fila_sc
 import 'package:url_strategy/url_strategy.dart'; // Import url_strategy
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env.development");
   setPathUrlStrategy(); // Call setPathUrlStrategy
+  await dotenv.load(
+    fileName: kReleaseMode ? ".env.production" : ".env.development",
+  );
   runApp(const MyApp());
 }
 
