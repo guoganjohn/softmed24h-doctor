@@ -107,6 +107,23 @@ class ApiService {
       throw Exception('Failed to register user: ${response.body}');
     }
   }
+
+  Future<QueueStats> fetchQueueStats(String token) async {
+    final url = Uri.parse('$_baseUrl/queue/stats');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return QueueStats.fromJson(json.decode(response.body));
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: Token expired or invalid.');
+    } else {
+      throw Exception('Failed to fetch queue stats: ${response.body}');
+    }
+  }
+
   Future<UserBaseInfo> fetchCurrentUser(String token) async {
     final url = Uri.parse('$_baseUrl/users/me');
     final response = await http.get(
@@ -121,6 +138,29 @@ class ApiService {
     } else {
       throw Exception('Failed to fetch user data: ${response.body}');
     }
+  }
+}
+
+class QueueStats {
+  final int inAttendanceCount;
+  final int waitingCount;
+  final int completedCount;
+  final int noWaitCount;
+
+  QueueStats({
+    required this.inAttendanceCount,
+    required this.waitingCount,
+    required this.completedCount,
+    required this.noWaitCount,
+  });
+
+  factory QueueStats.fromJson(Map<String, dynamic> json) {
+    return QueueStats(
+      inAttendanceCount: json['in_attendance_count'],
+      waitingCount: json['waiting_count'],
+      completedCount: json['completed_count'],
+      noWaitCount: json['no_wait_count'],
+    );
   }
 }
 

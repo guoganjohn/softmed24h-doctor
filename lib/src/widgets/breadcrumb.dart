@@ -43,6 +43,7 @@ class _BreadcrumbState extends State<Breadcrumb> {
     final pathSegments = uri.pathSegments;
 
     return Container(
+      width: double.infinity, // Ensure it takes full width
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       color: Colors.grey[200],
       child: Wrap( // Use Wrap to prevent overflow on smaller screens

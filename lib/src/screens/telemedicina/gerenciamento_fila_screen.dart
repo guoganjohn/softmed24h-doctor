@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:softmed24h_doctor/src/utils/api_service.dart'; // Import ApiService
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+import 'dart:convert'; // For JSON decoding
 
 // --- Widget to represent the colored statistic cards ---
 class QueueStatCard extends StatelessWidget {
@@ -81,11 +84,75 @@ class GerenciamentoFilaScreen extends StatefulWidget {
 class _GerenciamentoFilaScreenState extends State<GerenciamentoFilaScreen> {
   // State variable to manage the queue status
   bool _isQueueOpen = false;
+  int _customersInAttendanceCount = 0;
+  int _customersWaitingCount = 0;
+  int _completedServicesCount = 0;
+  int _noWaitServicesCount = 0;
+  bool _isLoading = true;
+  final ApiService _apiService = ApiService(); // Instantiate ApiService
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchQueueStats();
+  }
 
   void _toggleQueueStatus() {
     setState(() {
       _isQueueOpen = !_isQueueOpen;
     });
+  }
+
+  Future<void> _fetchQueueStats() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        if (mounted) {
+          // context.go('/');
+        }
+        return;
+      }
+
+      final stats = await _apiService.fetchQueueStats(token);
+      setState(() {
+        _customersInAttendanceCount = stats.inAttendanceCount;
+        _customersWaitingCount = stats.waitingCount;
+        _completedServicesCount = stats.completedCount;
+        _noWaitServicesCount = stats.noWaitCount;
+      });
+    } catch (e) {
+      print('Error fetching queue stats: $e');
+      if (e.toString().contains('Unauthorized')) {
+        _logout();
+      }
+      setState(() {
+        _customersInAttendanceCount = 0;
+        _customersWaitingCount = 0;
+        _completedServicesCount = 0;
+        _noWaitServicesCount = 0;
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Placeholder for a logout function, if not already defined in a parent widget or service
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token'); // Clear the token
+    if (mounted) {
+      // Navigate to login screen, assuming '/' is the login route
+      // This might need to be adjusted based on your GoRouter setup
+      Navigator.of(context).popUntil((route) => route.isFirst); // Clear navigation stack
+      // context.go('/'); // Or use GoRouter if available and appropriate
+    }
   }
 
   @override
@@ -128,32 +195,40 @@ class _GerenciamentoFilaScreenState extends State<GerenciamentoFilaScreen> {
           const SizedBox(height: 20),
 
           // --- 4 Statistic Cards (Row) ---
-          const Row(
+          Row(
             children: [
               QueueStatCard(
                 title: 'EM ATENDIMENTO',
-                value: '6',
+                value: _isLoading
+                    ? '...'
+                    : _customersInAttendanceCount.toString(),
                 color: Colors.deepPurple,
                 icon: Icons.person,
               ),
               SizedBox(width: 15),
               QueueStatCard(
                 title: 'AGUARDANDO ATENDIMENTO',
-                value: '4',
+                value: _isLoading
+                    ? '...'
+                    : _customersWaitingCount.toString(),
                 color: Colors.blue,
                 icon: Icons.access_time_filled,
               ),
               SizedBox(width: 15),
               QueueStatCard(
                 title: 'ATENDIMENTOS REALIZADOS',
-                value: '536',
+                value: _isLoading
+                    ? '...'
+                    : _completedServicesCount.toString(),
                 color: Colors.green,
                 icon: Icons.thumb_up,
               ),
               SizedBox(width: 15),
               QueueStatCard(
                 title: 'ABANDONOS DE FILA',
-                value: '25',
+                value: _isLoading
+                    ? '...'
+                    : _noWaitServicesCount.toString(),
                 color: Colors.grey, // Adjusted shade for visibility
                 icon: Icons.arrow_downward,
               ),
