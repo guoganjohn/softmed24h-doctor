@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:softmed24h_doctor/src/widgets/breadcrumb.dart';
 import 'package:softmed24h_doctor/src/widgets/header.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http; // Import http package
+import 'dart:convert'; // For JSON decoding
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 
 class LayoutScreen extends StatefulWidget {
   final Widget body;
@@ -15,10 +18,13 @@ class LayoutScreen extends StatefulWidget {
 class _LayoutScreenState extends State<LayoutScreen> {
   // State variable to track the currently expanded tile's route path
   String? _currentExpandedTile;
+  String? _username; // State variable to store the fetched username
+  bool _isLoading = true; // State variable to manage loading state
 
   @override
   void initState() {
     super.initState();
+    _fetchUserName(); // Fetch username when the widget initializes
     // Initialize _currentExpandedTile based on the active route when the widget is first built
     _currentExpandedTile = _getActiveParentRoute();
   }
@@ -39,6 +45,66 @@ class _LayoutScreenState extends State<LayoutScreen> {
       return '/dashboard/telemedicina';
     }
     return null;
+  }
+
+  // Method to fetch the username from the backend
+  Future<void> _fetchUserName() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        // If no token, navigate to login or handle as unauthenticated
+        if (mounted) {
+          context.go('/');
+        }
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('http://localhost:8000/users/me'), // Replace with your backend URL
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        setState(() {
+          _username = userData['name'] ?? 'Usuário'; // Default to 'Usuário' if name is null
+        });
+      } else if (response.statusCode == 401) {
+        // Token expired or invalid, navigate to login
+        if (mounted) {
+          _logout();
+        }
+      } else {
+        // Handle other errors
+        print('Failed to load user data: ${response.statusCode}');
+        setState(() {
+          _username = 'Erro';
+        });
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      setState(() {
+        _username = 'Erro';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Method to handle user logout
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token'); // Clear the token
+    if (mounted) {
+      context.go('/'); // Navigate to login screen
+    }
   }
 
   // Checks if the current route exactly matches the given path (for sub-menus or the main dashboard link)
@@ -98,11 +164,21 @@ class _LayoutScreenState extends State<LayoutScreen> {
                               size: 60,
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.logout, color: Colors.white),
-                            onPressed: () {
-                              context.go('/'); // Navigate to login screen
-                            },
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center, // Center the row content
+                            children: <Widget>[
+                              _isLoading
+                                  ? const CircularProgressIndicator(color: Colors.white) // Show loading indicator
+                                  : Text(
+                                      _username ?? 'Usuário', // Display fetched username or default
+                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                    ),
+                              const SizedBox(width: 8), // Spacing
+                              IconButton(
+                                icon: const Icon(Icons.logout, color: Colors.white),
+                                onPressed: _logout, // Call the _logout method
+                              ),
+                            ],
                           ),
                         ],
                       ),
