@@ -1,0 +1,10 @@
+warning: in the working copy of 'build/web/flutter_bootstrap.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'build/web/flutter_service_worker.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'build/web/main.dart.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/src/screens/layout_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/src/utils/api_service.dart', LF will be replaced by CRLF the next time Git touches it
+build/web/flutter_bootstrap.js
+build/web/flutter_service_worker.js
+build/web/main.dart.js
+lib/src/screens/layout_screen.dart
+lib/src/utils/api_service.dart

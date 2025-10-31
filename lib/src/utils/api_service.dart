@@ -107,6 +107,21 @@ class ApiService {
       throw Exception('Failed to register user: ${response.body}');
     }
   }
+  Future<UserBaseInfo> fetchCurrentUser(String token) async {
+    final url = Uri.parse('$_baseUrl/users/me');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return UserBaseInfo.fromJson(json.decode(response.body));
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: Token expired or invalid.');
+    } else {
+      throw Exception('Failed to fetch user data: ${response.body}');
+    }
+  }
 }
 
 class AuthResponse {
@@ -119,6 +134,22 @@ class AuthResponse {
     return AuthResponse(
       accessToken: json['access_token'],
       tokenType: json['token_type'],
+    );
+  }
+}
+
+class UserBaseInfo {
+  final int id;
+  final String email;
+  final String? name;
+
+  UserBaseInfo({required this.id, required this.email, this.name});
+
+  factory UserBaseInfo.fromJson(Map<String, dynamic> json) {
+    return UserBaseInfo(
+      id: json['id'],
+      email: json['email'],
+      name: json['name'],
     );
   }
 }

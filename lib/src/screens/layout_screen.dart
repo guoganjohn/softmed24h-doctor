@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http; // Import http package
 import 'dart:convert'; // For JSON decoding
 import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+import 'package:softmed24h_doctor/src/utils/api_service.dart'; // Import ApiService
 
 class LayoutScreen extends StatefulWidget {
   final Widget body;
@@ -20,6 +21,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
   String? _currentExpandedTile;
   String? _username; // State variable to store the fetched username
   bool _isLoading = true; // State variable to manage loading state
+  final ApiService _apiService = ApiService(); // Instantiate ApiService
 
   @override
   void initState() {
@@ -64,33 +66,21 @@ class _LayoutScreenState extends State<LayoutScreen> {
         return;
       }
 
-      final response = await http.get(
-        Uri.parse('http://localhost:8000/users/me'), // Replace with your backend URL
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      if (response.statusCode == 200) {
-        final userData = json.decode(response.body);
-        setState(() {
-          _username = userData['name'] ?? 'Usuário'; // Default to 'Usuário' if name is null
-        });
-      } else if (response.statusCode == 401) {
-        // Token expired or invalid, navigate to login
+      final userBaseInfo = await _apiService.fetchCurrentUser(token);
+      setState(() {
+        _username = userBaseInfo.name ?? 'Usuário'; // Default to 'Usuário' if name is null
+      });
+    } catch (e) {
+      print('Error fetching user data: $e');
+      if (e.toString().contains('Unauthorized')) {
         if (mounted) {
           _logout();
         }
       } else {
-        // Handle other errors
-        print('Failed to load user data: ${response.statusCode}');
         setState(() {
           _username = 'Erro';
         });
       }
-    } catch (e) {
-      print('Error fetching user data: $e');
-      setState(() {
-        _username = 'Erro';
-      });
     } finally {
       setState(() {
         _isLoading = false;
